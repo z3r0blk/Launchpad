@@ -1,0 +1,819 @@
+<!doctype html>
+<!--
+  Job Launcher v01 - personal job-search link launcher. Single self-contained HTML file.
+  Copyright (c) 2026 [your name]. Released under the MIT License. See LICENSE for details.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launchpad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f1ea; --panel:#fbfaf6; --ink:#1a1a17; --muted:#6b6760;
+    --faint:#9c9789; --accent:#8a3324; --rule:#d8d2c4; --rule-soft:#e7e2d6;
+    --sans:"Public Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --serif:"Fraunces",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+
+  header{border-bottom:2px solid var(--ink);padding:18px 22px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap}
+  .brand{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+  .brand h1{font-family:var(--serif);font-weight:600;font-size:34px;letter-spacing:-.01em;margin:0;line-height:1}
+  .brand .sub{font-family:var(--mono);font-size:11.5px;text-transform:none;letter-spacing:.04em;color:var(--muted)}
+  .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .headsel{height:32px;font-size:13px;font-weight:600;font-family:var(--sans);padding:0 10px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+  .theme-wrap{display:inline-flex;align-items:center;gap:6px}
+  .head-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+  .headsel:hover{background:var(--ink);color:var(--paper)}
+
+  input,select,textarea{font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--panel);border:1px solid var(--rule);border-radius:0;padding:6px 8px;height:32px}
+  input:focus,select:focus{outline:none;border-color:var(--ink)}
+  input::placeholder{color:var(--faint)}
+  button{font-family:var(--sans);font-weight:600;font-size:13px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--paper);height:32px;padding:0 14px}
+  button:hover{background:var(--accent);border-color:var(--accent)}
+  button.ghost{background:transparent;color:var(--ink)}
+  button.ghost:hover{background:var(--ink);color:var(--paper)}
+  button.tiny{height:25px;padding:0 9px;font-size:12px;font-weight:500}
+  button.tiny:disabled{opacity:.35;cursor:not-allowed}
+  button.tiny:disabled:hover{background:transparent;color:var(--ink);border-color:var(--ink)}
+  button.danger{border-color:var(--accent);color:var(--accent);background:transparent}
+  button.danger:hover{background:var(--accent);color:var(--paper)}
+  .iconbtn{height:24px;width:26px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--rule);background:transparent;color:var(--muted);cursor:pointer;align-self:center}
+  .iconbtn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .iconbtn svg{display:block}
+
+  .filterbar{padding:10px 22px;border-bottom:1px solid var(--rule-soft);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .filterbar input.search{width:280px;max-width:55vw}
+  .note{font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+  .wrap{padding:8px 22px 80px;max-width:1180px}
+  .popup-warn{background:#f7ece9;border:1px solid var(--accent);color:var(--accent);padding:8px 12px;font-size:13px;margin:12px 0;display:none}
+  .info-note{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:var(--panel);border:1px solid var(--rule);padding:7px 11px;margin:12px 0;letter-spacing:.02em;line-height:1.6;display:flex;gap:6px}
+  .info-note .hu{flex:0 0 auto;font-weight:600;color:var(--ink)}
+  .info-note .hu-body{flex:1}
+
+  .selall{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer}
+  .selall input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+  .actionsel{height:25px;font-size:12px;font-family:var(--sans);padding:0 6px;border:1px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer}
+  .subpick{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex:0 0 auto;margin:0}
+
+  .group{margin:26px 0 0}
+  .group-head{display:flex;align-items:center;gap:9px;border-bottom:2px solid var(--ink);padding-bottom:6px;flex-wrap:wrap}
+  .group-head h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:0;line-height:1.1}
+  .group-head .tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--rule);padding:2px 6px;color:var(--faint)}
+  .group-head .count{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.06em}
+  .group-head .spacer{flex:1}
+
+  .subgroup{margin:8px 0 0;padding-left:16px;border-left:2px solid var(--rule)}
+  .subgroup-head{display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--rule);padding:9px 0 5px;flex-wrap:wrap}
+  .subgroup-head h3{font-family:var(--serif);font-weight:600;font-size:16px;margin:0;line-height:1.1}
+  .subgroup-head .count{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.06em}
+  .subgroup-head .spacer{flex:1}
+  .hint-empty{color:var(--faint);font-size:13px;padding:9px 2px}
+
+  .links{margin-top:2px}
+  .row{display:flex;align-items:flex-start;gap:12px;padding:12px 4px;border-bottom:1px solid var(--rule-soft)}
+  .pick{width:17px;height:17px;margin-top:3px;accent-color:var(--accent);cursor:pointer;flex:0 0 auto}
+  .leftcol{display:flex;flex-direction:column;gap:5px;flex:0 0 auto;max-width:160px;align-items:flex-start}
+  .badge{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--rule);padding:3px 7px;color:var(--muted);white-space:nowrap;min-width:72px;max-width:150px;overflow:hidden;text-overflow:ellipsis;text-align:center}
+  .since{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.04em;white-space:nowrap;padding-left:1px}
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .main .label{display:block;font-weight:600;font-size:15px;color:var(--ink);text-decoration:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .main .label:hover{color:var(--accent);text-decoration:underline}
+  .main .url{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:620px}
+  .main .rnote{font-size:13px;color:var(--muted)}
+  .metarow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:5px}
+  .metarow .winrow{display:flex;gap:6px;align-items:center}
+  .metarow select{height:28px;font-size:12px;padding:2px 6px}
+  .metarow .custom{display:none;gap:6px;align-items:center}
+  .metarow .custom.on{display:flex}
+  .metarow .custom input{width:58px;height:28px;font-size:12px;text-align:right}
+  .metarow .custom select{width:78px}
+  .metarow .winlabel{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.03em}
+
+  .empty{padding:48px 4px;color:var(--muted);font-size:14px}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(26,26,23,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+  .modal-overlay.on{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--ink);max-width:430px;width:100%;padding:20px 22px}
+  .modal .msg{font-size:15px;line-height:1.5;margin-bottom:16px}
+  .modal .m-actions{display:flex;gap:8px;justify-content:flex-end}
+  .modal.wide{max-width:580px}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .modal-head h3{font-family:var(--serif);font-weight:600;font-size:20px;margin:0}
+  .modal-head .iconbtn{font-size:18px;font-weight:600}
+  #importBody{max-height:68vh;overflow-y:auto}
+  .imp-note{font-size:13.5px;color:var(--muted);line-height:1.55;margin:0 0 14px}
+  .imp-note b{color:var(--ink)}
+  .imp-crumb{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6}
+  .imp-crumb a{color:var(--accent);cursor:pointer;text-decoration:none}
+  .imp-crumb a:hover{text-decoration:underline}
+  .imp-folders{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .imp-folder{text-align:left;background:transparent;color:var(--ink);border:1px solid var(--rule);height:auto;padding:7px 10px;font-weight:600;font-size:13px}
+  .imp-folder:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .imp-all{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--muted);margin:2px 0 8px;cursor:pointer}
+  .imp-all input{accent-color:var(--accent)}
+  .imp-links{display:flex;flex-direction:column;border:1px solid var(--rule-soft)}
+  .imp-link{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-bottom:1px solid var(--rule-soft);cursor:pointer}
+  .imp-link:last-child{border-bottom:none}
+  .imp-link:hover{background:var(--paper)}
+  .imp-link input{margin-top:3px;accent-color:var(--accent);flex:0 0 auto}
+  .imp-link .meta{min-width:0;display:flex;flex-direction:column}
+  .imp-link .t{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:430px}
+  .imp-link .u{font-size:11.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:430px}
+  .imp-foot{display:flex;align-items:center;gap:8px;margin-top:14px}
+  .imp-foot .sp{flex:1}
+  .imp-cnt{font-family:var(--mono);font-size:12px;color:var(--accent)}
+  .imp-field{margin-bottom:12px}
+  .imp-field label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:block;margin-bottom:3px}
+  .imp-field input,.imp-field select{width:100%;max-width:340px}
+
+  .editor{border:1px solid var(--ink);background:var(--panel);padding:16px 18px;margin:16px 0;display:none}
+  .editor.open{display:block}
+  .editor h3{font-family:var(--serif);font-weight:600;font-size:18px;margin:0 0 4px}
+  .editor .ctx{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.04em}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid .full{grid-column:1/-1}
+  .grid .field label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);display:block;margin-bottom:3px}
+  .grid .field input,.grid .field select{width:100%}
+  .editor .ed-actions{margin-top:12px;display:flex;gap:8px;align-items:center}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Launchpad</h1>
+    <span class="sub">your job search, staged and ready</span>
+  </div>
+  <div class="actions">
+    <button id="addGroupBtn">Add group</button>
+    <select id="backupSel" class="headsel">
+      <option value="" disabled selected>Backup</option>
+      <option value="export">Export backup&hellip;</option>
+      <option value="import">Import backup&hellip;</option>
+    </select>
+    <button class="ghost" id="bmBtn">Import bookmarks</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none">
+    <input type="file" id="bmFile" accept=".html,.htm,text/html" style="display:none">
+    <span class="theme-wrap"><span class="head-label">Color scheme</span><select id="themeSel" class="headsel" title="Color scheme">
+      <option value="default">Default</option>
+      <option value="midnight">1 &middot; Midnight</option>
+      <option value="sea">2 &middot; Sea glass</option>
+      <option value="terminal">3 &middot; Terminal</option>
+      <option value="sunset">4 &middot; Sunset</option>
+      <option value="berry">5 &middot; Berry</option>
+    </select></span>
+  </div>
+</header>
+
+<div class="filterbar">
+  <input class="search" id="filter" placeholder="filter by city, term, note, url&hellip;" autocomplete="off">
+  <span class="note" id="storeNote"></span>
+</div>
+
+<div class="wrap">
+  <div class="info-note"><span class="hu">Heads up:</span><span class="hu-body">Allow pop-ups for this page (or disable the blocker for it) so &ldquo;Open selected&rdquo; can open multiple tabs at once.<br>If you are opening several tabs at once and only the first opens, allow pop-ups for the site, then try again.</span></div>
+
+  <div class="modal-overlay" id="confirmOverlay">
+    <div class="modal">
+      <div class="msg" id="confirmMsg"></div>
+      <div class="m-actions">
+        <button class="ghost" id="confirmCancel">Cancel</button>
+        <button class="danger" id="confirmOk">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="importModal">
+    <div class="modal wide">
+      <div class="modal-head"><h3 id="importTitle">Import bookmarks</h3><button class="iconbtn" id="importClose" title="Close">&times;</button></div>
+      <div id="importBody"></div>
+    </div>
+  </div>
+
+  <div class="editor" id="editor">
+    <h3 id="editorTitle">Add</h3>
+    <div class="ctx" id="editorCtx" style="display:none"></div>
+    <div class="grid">
+      <div class="field full" id="typeField" style="display:none"><label>Type</label>
+        <select id="edType">
+          <option value="linkedin">LinkedIn &mdash; time window built into each link</option>
+          <option value="google">Google &mdash; time window in the search text</option>
+          <option value="custom">Custom / Other &mdash; just link + last opened</option>
+        </select>
+      </div>
+      <div class="field full" id="nameField"><label id="lblName">Name</label><input id="edName" autocomplete="off"></div>
+      <div class="field" id="locField" style="display:none"><label>Location (city / state) &mdash; shown as the badge</label><input id="edLoc" placeholder="e.g. Raleigh, NC" autocomplete="off"></div>
+      <div class="field full" id="urlField" style="display:none"><label>Search URL &mdash; must start with https://</label><input id="edUrl" placeholder="https://www.linkedin.com/jobs/search/?keywords=..." autocomplete="off"></div>
+      <div class="field full" id="noteField" style="display:none"><label>Note (optional)</label><input id="edNote" placeholder="anything worth remembering" autocomplete="off"></div>
+    </div>
+    <div class="ed-actions">
+      <button id="edSave">Save</button>
+      <button class="ghost" id="edCancel">Cancel</button>
+      <button class="danger" id="edDelete" style="display:none;margin-left:auto">Delete</button>
+    </div>
+  </div>
+
+  <div id="board"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var STORE_KEY = "jobdesk.launcher.v5";
+  var FIRST_RUN_SEC = 86400;
+  var BUFFER_SEC = 600;
+  var TYPE_LABEL = { linkedin:"LinkedIn", google:"Google", custom:"Custom" };
+  var GWIN = [["since","Since last opened"],["day1","1 day"],["day2","2 days"],["day3","3 days"],["day5","5 days"],["wk1","1 week"],["wk2","2 weeks"],["mo1","1 month"]];
+  var GPHRASE = { day1:"in the last day", day2:"in the last 2 days", day3:"in the last 3 days", day5:"in the last 5 days", wk1:"in the last week", wk2:"in the last 2 weeks", mo1:"in the last month" };
+  var GSECS = { day1:86400, day2:172800, day3:259200, day5:432000, wk1:604800, wk2:1209600, mo1:2592000 };
+
+  function load(){ try{ var r=localStorage.getItem(STORE_KEY); return r?JSON.parse(r):null; }catch(e){ return null; } }
+  function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state.groups)); markStore(true); }catch(e){ markStore(false); } }
+  function markStore(ok){ document.getElementById("storeNote").textContent = ok ? "saved to this browser" : "preview mode \u00b7 edits and timers persist once you download this file"; }
+  function uid(){ return "x_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
+
+  function lk(title,url,note,location){ return {id:uid(),label:title||"",url:url,note:note||"",location:location||"",winType:"since",winSec:FIRST_RUN_SEC,customNum:24,customUnit:"hours",gWin:"since",lastClicked:null}; }
+
+  var SEED = [
+    { id:uid(), name:"LinkedIn", type:"linkedin", subgroups:[
+      { id:uid(), name:"Accountant", links:[
+        lk("","https://www.linkedin.com/jobs/search/?keywords=accountant&location=Apex%2C%20North%20Carolina&f_TPR=r86400&sortBy=DD","","Apex, NC"),
+        lk("","https://www.linkedin.com/jobs/search/?currentJobId=4425284590&f_TPR=r86400&geoId=100197101&origin=JOB_SEARCH_PAGE_LOCATION_HISTORY&refresh=true&sortBy=DD","test link","Raleigh, NC"),
+        lk("","https://www.linkedin.com/jobs/search/?keywords=accountant&location=Minneapolis%2C%20Minnesota&f_TPR=r86400&sortBy=DD","","Minneapolis, MN")
+      ]},
+      { id:uid(), name:"Storage Admin", links:[
+        lk("","https://www.linkedin.com/jobs/search/?keywords=storage%20administrator&location=Apex%2C%20North%20Carolina&f_TPR=r86400&sortBy=DD","","Apex, NC"),
+        lk("","https://www.linkedin.com/jobs/search/?keywords=storage%20administrator&location=Raleigh%2C%20North%20Carolina&f_TPR=r86400&sortBy=DD","","Raleigh, NC"),
+        lk("","https://www.linkedin.com/jobs/search/?keywords=storage%20administrator&location=Minneapolis%2C%20Minnesota&f_TPR=r86400&sortBy=DD","","Minneapolis, MN")
+      ]}
+    ]},
+    { id:uid(), name:"Google", type:"google", subgroups:[
+      { id:uid(), name:"IT Support Specialist", links:[
+        lk("","https://www.google.com/search?q=IT+Support+Specialist+jobs+near+Denver+in+the+last+3+days&sca_esv=3c760e260642725e&hl=en&gl=US&udm=8&biw=1874&bih=954&sxsrf=ANbL-n4_i9Oh48rdy55eNvi51sXRUmokHA%3A1779390581733&ei=dVgPavitLKTLp84P7ITy2AY&ved=0ahUKEwi4vKm8isuUAxWk5ckDHWyCHGsQ4dUDCBI&uact=5&oq=IT+Support+Specialist+jobs+near+Denver+in+the+last+3+days&gs_lp=EhVnd3Mtd2l6LW1vZGVsZXNzLWpvYnMiOUlUIFN1cHBvcnQgU3BlY2lhbGlzdCBqb2JzIG5lYXIgRGVudmVyIGluIHRoZSBsYXN0IDMgZGF5czIIEAAYgAQYogQyBRAAGO8FMgUQABjvBTIIEAAYgAQYogQyCBAAGIAEGKIESOsNUIQGWLYLcAF4AZABAJgBjwGgAfAEqgEDNC4yuAEDyAEA-AEBmAIFoAKiA8ICChAAGEcY1gQYsAPCAg0QABhHGNYEGMkDGLADwgIOEAAYgAQYigUYkgMYsAPCAgQQIRgKmAMAiAYBkAYHkgcDMy4yoAfWGbIHAzIuMrgHmwPCBwUwLjIuM8gHE4AIAQ&sclient=gws-wiz-modeless-jobs&jbr=sep:0","sample test link","Denver, CO"),
+        lk("","https://www.google.com/search?q=IT+Support+Specialist+jobs+near+Austin+in+the+last+3+days&udm=8&hl=en&gl=US","","Austin, TX")
+      ]},
+      { id:uid(), name:"Accountant", links:[
+        lk("","https://www.google.com/search?q=Accountant+jobs+near+Raleigh+in+the+last+3+days&udm=8&hl=en&gl=US","","Raleigh, NC")
+      ]}
+    ]}
+  ];
+
+  function inferType(name){ var n=(name||"").toLowerCase(); return n.indexOf("linkedin")>-1?"linkedin":(n.indexOf("google")>-1?"google":"custom"); }
+
+  function normalize(groups){
+    groups.forEach(function(g){
+      if(!g.id) g.id=uid(); if(!g.name) g.name="Group";
+      if(!g.type) g.type=inferType(g.name);
+      if(!Array.isArray(g.subgroups)){ g.subgroups=[{ id:uid(), name:"General", links: Array.isArray(g.links)?g.links:[] }]; }
+      delete g.links;
+      g.subgroups.forEach(function(sg){
+        if(!sg.id) sg.id=uid(); if(!sg.name) sg.name="Subgroup"; if(!Array.isArray(sg.links)) sg.links=[];
+        sg.links.forEach(function(l){
+          if(!l.id) l.id=uid();
+          if(!("label" in l)) l.label=""; if(!("location" in l)) l.location=""; if(!("note" in l)) l.note="";
+          if(!l.winType) l.winType="since"; if(typeof l.winSec!=="number") l.winSec=FIRST_RUN_SEC;
+          if(typeof l.customNum!=="number") l.customNum=24; if(!l.customUnit) l.customUnit="hours";
+          if(!l.gWin) l.gWin="since";
+          if(!("gWin" in l)) l.gWin="";
+          if(l.gWin==="su"||l.gWin==="sd") l.gWin="";
+          if(!("lastClicked" in l)) l.lastClicked=null;
+        });
+      });
+    });
+    return groups;
+  }
+
+  var state = { groups: normalize(load() || SEED), filter:"", selected:{}, editor:{mode:null,groupId:null,subgroupId:null,linkId:null} };
+  var popupShown=false;
+  var board=document.getElementById("board");
+
+  var confirmOverlay=document.getElementById("confirmOverlay"), confirmMsg=document.getElementById("confirmMsg"),
+      confirmOk=document.getElementById("confirmOk"), confirmCancel=document.getElementById("confirmCancel"), confirmCb=null;
+  function confirmBox(msg, okLabel, cb){ confirmMsg.textContent=msg; confirmOk.textContent=okLabel||"Delete"; confirmCb=cb; confirmOverlay.classList.add("on"); }
+  function confirmClose(){ confirmOverlay.classList.remove("on"); confirmCb=null; }
+  confirmOk.addEventListener("click",function(){ var cb=confirmCb; confirmOverlay.classList.remove("on"); confirmCb=null; if(cb) cb(); });
+  confirmCancel.addEventListener("click",confirmClose);
+  confirmOverlay.addEventListener("click",function(e){ if(e.target===confirmOverlay) confirmClose(); });
+
+  function esc(s){return (s||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function siteOf(url){
+    var host=""; try{ host=new URL(url).hostname.replace(/^www\./,""); }catch(e){ return "LINK"; }
+    var map=[["linkedin.","LinkedIn"],["indeed.","Indeed"],["glassdoor.","Glassdoor"],["ziprecruiter.","ZipRecruiter"],
+      ["dice.","Dice"],["monster.","Monster"],["google.","Google"],["simplyhired.","SimplyHired"],
+      ["wellfound.","Wellfound"],["builtin.","Built In"],["remoteok.","RemoteOK"],["weworkremotely.","WWR"]];
+    for(var i=0;i<map.length;i++){ if(host.indexOf(map[i][0])>-1) return map[i][1]; }
+    return host.split(".")[0].slice(0,10);
+  }
+  function badgeText(l){ return l.location || siteOf(l.url); }
+  function rowLabel(l){ return l.label || l.url; }
+  function matches(l,f){ if(!f) return true; return (l.label+" "+(l.location||"")+" "+(l.note||"")+" "+l.url+" "+siteOf(l.url)).toLowerCase().indexOf(f)>-1; }
+
+  function sinceText(ms){
+    if(!ms) return "never";
+    var s=Math.floor((Date.now()-ms)/1000);
+    if(s<60) return "just now";
+    var m=Math.floor(s/60); if(m<60) return m+"m ago";
+    var h=Math.floor(s/3600), rem=Math.floor((s%3600)/60);
+    if(h<24) return (rem?h+"h "+rem+"m":h+"h")+" ago";
+    var d=Math.round((s/86400)*10)/10; return d+"d ago";
+  }
+  function humanSec(sec){ if(sec<3600) return Math.round(sec/60)+"m"; if(sec<86400) return (Math.round((sec/3600)*10)/10)+"h"; return (Math.round((sec/86400)*10)/10)+"d"; }
+  function windowSeconds(l){
+    if(l.winType==="since"){ if(!l.lastClicked) return FIRST_RUN_SEC; var e=Math.ceil((Date.now()-l.lastClicked)/1000)+BUFFER_SEC; return Math.max(e,60); }
+    return l.winSec||FIRST_RUN_SEC;
+  }
+  function windowLabel(l,type){
+    if(type==="google"){
+      if(!l.gWin) return "window: as pasted \u00b7 pick a day to set";
+      return "window: last "+gOpt(l.gWin)[1];
+    }
+    if(type!=="linkedin") return "";
+    if(l.winType==="since" && !l.lastClicked) return "window: 24h (r86400) \u00b7 first run";
+    var sec=windowSeconds(l); return "window: "+humanSec(sec)+" (r"+sec+")";
+  }
+  var GOOGLE_OPTS=[["1d","1 day","in the last day"],["2d","2 days","in the last 2 days"],["3d","3 days","in the last 3 days"],["5d","5 days","in the last 5 days"],["1w","1 week","in the last week"],["2w","2 weeks","in the last 2 weeks"],["1m","1 month","in the last month"]];
+  function gOpt(key){ for(var i=0;i<GOOGLE_OPTS.length;i++){ if(GOOGLE_OPTS[i][0]===key) return GOOGLE_OPTS[i]; } return GOOGLE_OPTS[2]; }
+  var GOOGLE_MENU=[["","Select day"],["1d","1 day"],["2d","2 days"],["3d","3 days"],["5d","5 days"],["1w","1 week"],["2w","2 weeks"],["1m","1 month"]];
+  function gSinceDays(l,mode){ if(!l.lastClicked) return 1; var d=(Date.now()-l.lastClicked)/86400000; return Math.max(1, mode==="su"?Math.ceil(d):Math.floor(d)); }
+  function gDaysPhrase(n){ return n===1?"in the last day":"in the last "+n+" days"; }
+  function stripTimePhrase(q){ return q.replace(/\s*\b(in the (last|past)|within the (last|past)|last|past)\s+(\d+\s+)?(hour|hours|day|days|week|weeks|month|months)\b/ig,"").replace(/\s{2,}/g," ").trim(); }
+  function launchUrl(l,type){
+    if(type==="linkedin"){
+      var sec=windowSeconds(l);
+      try{ var u=new URL(l.url); u.searchParams.set("f_TPR","r"+sec); return u.toString(); }
+      catch(e){ if(/[?&]f_TPR=r\d+/.test(l.url)) return l.url.replace(/(f_TPR=r)\d+/,"$1"+sec); return l.url+(l.url.indexOf("?")>-1?"&":"?")+"f_TPR=r"+sec; }
+    }
+    if(type==="google"){
+      if(!l.gWin) return l.url;
+      try{ var gu=new URL(l.url); var q=gu.searchParams.get("q"); if(!q) return l.url;
+        var base=stripTimePhrase(q); gu.searchParams.set("q", base+" "+gOpt(l.gWin)[2]); return gu.toString();
+      }catch(e){ return l.url; }
+    }
+    return l.url;
+  }
+
+  function findGroup(id){ for(var i=0;i<state.groups.length;i++) if(state.groups[i].id===id) return state.groups[i]; return null; }
+  function findSub(gid,sid){ var g=findGroup(gid); if(!g) return null; for(var i=0;i<g.subgroups.length;i++) if(g.subgroups[i].id===sid) return g.subgroups[i]; return null; }
+  function findLinkById(id){
+    for(var i=0;i<state.groups.length;i++){ var sgs=state.groups[i].subgroups;
+      for(var j=0;j<sgs.length;j++){ var ls=sgs[j].links; for(var k=0;k<ls.length;k++){ if(ls[k].id===id) return ls[k]; } } }
+    return null;
+  }
+  function groupLinks(g){ var a=[]; g.subgroups.forEach(function(s){ a=a.concat(s.links); }); return a; }
+
+  function stamp(l){ l.lastClicked=Date.now(); }
+  function openOne(url){
+    var a=document.createElement("a"); a.href=url; a.target="_blank"; a.rel="noopener";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+  function openLinks(links,type){
+    links.forEach(function(l){ openOne(launchUrl(l,type)); stamp(l); });
+    save(); updateTimes();
+  }
+
+  var selRefreshers=[];
+  function refreshAllSel(){ selRefreshers.forEach(function(fn){fn();}); }
+  function setRowCheck(id,val){ var cb=document.querySelector('.pick[data-lid="'+id+'"]'); if(cb) cb.checked=val; }
+  function pencil(onClick,titleText){
+    var b=document.createElement("button"); b.className="iconbtn"; b.title=titleText||"Edit"; b.setAttribute("aria-label",titleText||"Edit");
+    b.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+    b.addEventListener("click",onClick); return b;
+  }
+
+  function makeSubControls(getLinks, actions, groupType){
+    var allCb=document.createElement("input"); allCb.type="checkbox"; allCb.className="subpick"; allCb.title="Select all in this term";
+    var openBtn=document.createElement("button"); openBtn.className="tiny";
+    var actionSel=document.createElement("select"); actionSel.className="actionsel";
+    [["","Select action"],["add","Add link"],["edit","Edit"],["remove","Remove"]].forEach(function(o){ var op=document.createElement("option"); op.value=o[0]; op.textContent=o[1]; actionSel.appendChild(op); });
+
+    function f(){ return state.filter.trim().toLowerCase(); }
+    function visible(){ return getLinks().filter(function(l){ return matches(l,f()); }); }
+    function selVis(){ return visible().filter(function(l){ return state.selected[l.id]; }); }
+
+    actionSel.addEventListener("change",function(){
+      var v=actionSel.value, s=selVis();
+      if(v==="add") actions.onAdd();
+      else if(v==="edit"){ if(s.length===1) actions.onEdit(s[0]); }
+      else if(v==="remove"){ if(s.length) actions.onRemove(s); }
+      actionSel.value="";
+    });
+    allCb.addEventListener("change",function(){ visible().forEach(function(l){ if(allCb.checked) state.selected[l.id]=true; else delete state.selected[l.id]; setRowCheck(l.id,allCb.checked); }); refreshAllSel(); });
+    openBtn.addEventListener("click",function(){ var s=selVis(); if(s.length) openLinks(s,groupType); });
+
+    function refresh(){
+      var vis=visible(), n=selVis().length;
+      openBtn.textContent="Open selected ("+n+")"; openBtn.disabled=(n===0);
+      allCb.checked=(vis.length>0 && n===vis.length); allCb.indeterminate=(n>0 && n<vis.length);
+      actionSel.options[2].disabled=(n!==1);
+      actionSel.options[3].disabled=(n===0);
+      actionSel.options[3].textContent = "Remove"+(n>0?" ("+n+")":"");
+    }
+    selRefreshers.push(refresh);
+    return { allCb:allCb, openBtn:openBtn, actionSel:actionSel };
+  }
+
+  function render(){
+    selRefreshers=[];
+    homeEditor();
+    var f=state.filter.trim().toLowerCase();
+    board.innerHTML="";
+    var anyShown=false;
+    state.groups.forEach(function(g){
+      var gVisible=groupLinks(g).filter(function(l){return matches(l,f);});
+      if(f && gVisible.length===0) return;
+      anyShown=true;
+      board.appendChild(buildGroup(g,f));
+    });
+    if(!anyShown){ var e=document.createElement("div"); e.className="empty"; e.textContent = f ? 'No searches match "'+f+'".' : "Nothing here yet. Hit \u201cAdd group\u201d to start."; board.appendChild(e); }
+    refreshAllSel(); updateTimes();
+  }
+
+  function buildGroup(g,f){
+    var wrap=document.createElement("div"); wrap.className="group"; wrap.setAttribute("data-gid",g.id);
+    var head=document.createElement("div"); head.className="group-head";
+    var h2=document.createElement("h2"); h2.textContent=g.name; head.appendChild(h2);
+    head.appendChild(pencil(function(){ openGroupSettings(g.id); }, "Edit group"));
+    if(g.type==="custom"){ var tg=document.createElement("span"); tg.className="tag"; tg.textContent="custom"; head.appendChild(tg); }
+    var cnt=document.createElement("span"); cnt.className="count";
+    cnt.textContent=g.subgroups.length+" term"+(g.subgroups.length===1?"":"s")+" \u00b7 "+groupLinks(g).length+" search"+(groupLinks(g).length===1?"":"es");
+    head.appendChild(cnt);
+    var sp=document.createElement("span"); sp.className="spacer"; head.appendChild(sp);
+    var addSub=document.createElement("button"); addSub.className="tiny"; addSub.textContent="+ Search term";
+    addSub.addEventListener("click",function(){ openSubgroupEditor(g.id); });
+    head.appendChild(addSub);
+    wrap.appendChild(head);
+
+    if(g.subgroups.length===0){ var hint=document.createElement("div"); hint.className="hint-empty"; hint.textContent="No search terms yet. Use \u201c+ Search term\u201d to add a role or keyword."; wrap.appendChild(hint); }
+    g.subgroups.forEach(function(sg){
+      var sgVisible=sg.links.filter(function(l){return matches(l,f);});
+      if(f && sgVisible.length===0) return;
+      wrap.appendChild(buildSubgroup(g,sg,f));
+    });
+    return wrap;
+  }
+
+  function buildSubgroup(g,sg,f){
+    var wrap=document.createElement("div"); wrap.className="subgroup"; wrap.setAttribute("data-sgid",sg.id);
+    var head=document.createElement("div"); head.className="subgroup-head";
+
+    function removeSelected(sel){
+      if(!sel.length) return;
+      confirmBox("Remove "+sel.length+" search"+(sel.length===1?"":"es")+" from "+sg.name+"?", "Remove", function(){
+        var ids={}; sel.forEach(function(l){ ids[l.id]=true; delete state.selected[l.id]; });
+        sg.links=sg.links.filter(function(l){ return !ids[l.id]; });
+        save(); render();
+      });
+    }
+    var sc=makeSubControls(function(){ return sg.links; }, {
+      onAdd:function(){ openSearchEditor(g.id,sg.id,null); },
+      onEdit:function(l){ openSearchEditor(g.id,sg.id,l); },
+      onRemove:removeSelected
+    }, g.type);
+
+    head.appendChild(sc.allCb);
+    var h3=document.createElement("h3"); h3.textContent=sg.name; head.appendChild(h3);
+    head.appendChild(pencil(function(){ openSubSettings(g.id,sg.id); }, "Edit search term"));
+    var cnt=document.createElement("span"); cnt.className="count"; cnt.textContent=sg.links.length+" search"+(sg.links.length===1?"":"es"); head.appendChild(cnt);
+    var sp=document.createElement("span"); sp.className="spacer"; head.appendChild(sp);
+    head.appendChild(sc.openBtn); head.appendChild(sc.actionSel);
+    wrap.appendChild(head);
+
+    var links=document.createElement("div"); links.className="links";
+    var shown=0;
+    sg.links.forEach(function(l){ if(!matches(l,f)) return; shown++; links.appendChild(buildRow(g,sg,l)); });
+    if(shown===0 && !f){ var hint=document.createElement("div"); hint.className="hint-empty"; hint.textContent="No searches yet. Pick \u201cAdd link\u201d from the action menu."; wrap.appendChild(hint); }
+    wrap.appendChild(links);
+    return wrap;
+  }
+
+  function buildRow(g,sg,l){
+    var type=g.type;
+    var row=document.createElement("div"); row.className="row";
+    var pick=document.createElement("input"); pick.type="checkbox"; pick.className="pick"; pick.setAttribute("data-lid",l.id);
+    pick.checked=!!state.selected[l.id];
+    pick.addEventListener("change",function(){ if(pick.checked) state.selected[l.id]=true; else delete state.selected[l.id]; refreshAllSel(); });
+    row.appendChild(pick);
+
+    var leftcol=document.createElement("div"); leftcol.className="leftcol";
+    var badge=document.createElement("div"); badge.className="badge"; badge.textContent=badgeText(l); badge.title=badgeText(l); leftcol.appendChild(badge);
+    var since=document.createElement("div"); since.className="since"; since.setAttribute("data-lid",l.id); since.textContent=sinceText(l.lastClicked); leftcol.appendChild(since);
+    row.appendChild(leftcol);
+
+    var main=document.createElement("div"); main.className="main";
+    var a=document.createElement("a"); a.className="label"; a.setAttribute("data-lid",l.id);
+    a.target="_blank"; a.rel="noopener"; a.href=launchUrl(l,type); a.textContent=rowLabel(l); a.title=l.url;
+    function onOpen(){ stamp(l); save(); setTimeout(updateTimes,80); }
+    a.addEventListener("click",onOpen);
+    a.addEventListener("auxclick",function(ev){ if(ev.button===1) onOpen(); });
+    main.appendChild(a);
+    if(l.label){ var urlLine=document.createElement("div"); urlLine.className="url"; urlLine.textContent=l.url; main.appendChild(urlLine); }
+    if(l.note){ var n=document.createElement("div"); n.className="rnote"; n.textContent=l.note; main.appendChild(n); }
+
+    if(type==="linkedin"){
+      var meta=document.createElement("div"); meta.className="metarow";
+      var winrow=document.createElement("div"); winrow.className="winrow";
+      var sel=document.createElement("select");
+      [["since","Since last opened"],["21600","6 hours"],["43200","12 hours"],["86400","24 hours"],["172800","2 days"],["259200","3 days"],["custom","Custom\u2026"]].forEach(function(o){ var op=document.createElement("option"); op.value=o[0]; op.textContent=o[1]; sel.appendChild(op); });
+      sel.value = l.winType==="since"?"since":(l.winType==="custom"?"custom":String(l.winSec));
+      var custom=document.createElement("span"); custom.className="custom"+(l.winType==="custom"?" on":"");
+      var num=document.createElement("input"); num.type="number"; num.min="1"; num.value=l.customNum;
+      var unit=document.createElement("select"); ["hours","days"].forEach(function(u){ var op=document.createElement("option"); op.value=u; op.textContent=u; unit.appendChild(op); }); unit.value=l.customUnit;
+      custom.appendChild(num); custom.appendChild(unit);
+      var winlabel=document.createElement("div"); winlabel.className="winlabel"; winlabel.setAttribute("data-lid",l.id); winlabel.textContent=windowLabel(l,type);
+      function applyCustom(){ var v=Math.max(1,parseInt(num.value,10)||1); l.customNum=v; l.customUnit=unit.value; l.winSec=v*(unit.value==="days"?86400:3600); l.winType="custom"; save(); winlabel.textContent=windowLabel(l,type); a.href=launchUrl(l,type); }
+      sel.addEventListener("change",function(){
+        if(sel.value==="since"){ l.winType="since"; custom.classList.remove("on"); }
+        else if(sel.value==="custom"){ l.winType="custom"; custom.classList.add("on"); applyCustom(); }
+        else { l.winType="preset"; l.winSec=parseInt(sel.value,10); custom.classList.remove("on"); }
+        save(); winlabel.textContent=windowLabel(l,type); a.href=launchUrl(l,type);
+      });
+      num.addEventListener("input",applyCustom); unit.addEventListener("change",applyCustom);
+      winrow.appendChild(sel); winrow.appendChild(custom);
+      meta.appendChild(winrow); meta.appendChild(winlabel);
+      main.appendChild(meta);
+    } else if(type==="google"){
+      var meta2=document.createElement("div"); meta2.className="metarow";
+      var winrow2=document.createElement("div"); winrow2.className="winrow";
+      var gsel=document.createElement("select");
+      GOOGLE_MENU.forEach(function(o){ var op=document.createElement("option"); op.value=o[0]; op.textContent=o[1]; if(o[0]==="") op.disabled=true; gsel.appendChild(op); });
+      gsel.value=l.gWin||"";
+      function gGrey(){ gsel.style.color = gsel.value===""?"var(--faint)":"var(--ink)"; }
+      gGrey();
+      var wl=document.createElement("div"); wl.className="winlabel"; wl.setAttribute("data-lid",l.id); wl.textContent=windowLabel(l,type);
+      gsel.addEventListener("change",function(){ l.gWin=gsel.value; gGrey(); save(); wl.textContent=windowLabel(l,type); a.href=launchUrl(l,type); });
+      winrow2.appendChild(gsel); meta2.appendChild(winrow2); meta2.appendChild(wl); main.appendChild(meta2);
+    }
+    row.appendChild(main);
+    return row;
+  }
+
+  function updateTimes(){
+    state.groups.forEach(function(g){ g.subgroups.forEach(function(sg){ sg.links.forEach(function(l){
+      var s=document.querySelector('.since[data-lid="'+l.id+'"]'); if(s) s.textContent=sinceText(l.lastClicked);
+      var w=document.querySelector('.winlabel[data-lid="'+l.id+'"]'); if(w) w.textContent=windowLabel(l,g.type);
+      var a=document.querySelector('a.label[data-lid="'+l.id+'"]'); if(a) a.href=launchUrl(l,g.type);
+    }); }); });
+  }
+  setInterval(updateTimes,30000);
+
+  // ---------- editor ----------
+  var editor=document.getElementById("editor");
+  var elType=document.getElementById("edType"), elName=document.getElementById("edName"), elLoc=document.getElementById("edLoc"), elUrl=document.getElementById("edUrl"), elNote=document.getElementById("edNote");
+  var typeField=document.getElementById("typeField"), nameField=document.getElementById("nameField"), locField=document.getElementById("locField"), urlField=document.getElementById("urlField"), noteField=document.getElementById("noteField");
+  var ctxEl=document.getElementById("editorCtx"), titleEl=document.getElementById("editorTitle"), lblName=document.getElementById("lblName"), delBtn=document.getElementById("edDelete");
+
+  function configFields(mode){
+    var isGroup=(mode==="group"||mode==="rename-group"), isSearch=(mode==="search");
+    typeField.style.display=isGroup?"block":"none";
+    locField.style.display=isSearch?"block":"none";
+    urlField.style.display=isSearch?"block":"none";
+    noteField.style.display=isSearch?"block":"none";
+    if(isSearch) nameField.classList.remove("full"); else nameField.classList.add("full");
+  }
+  function showDelete(on){ delBtn.style.display=on?"inline-flex":"none"; }
+  function homeEditor(){ board.parentNode.insertBefore(editor, board); }
+  function placeEditor(){
+    var m=state.editor.mode, el=null;
+    if(m==="rename-group"||m==="subgroup") el=board.querySelector('[data-gid="'+state.editor.groupId+'"]');
+    else if(m==="rename-subgroup"||m==="search") el=board.querySelector('[data-sgid="'+state.editor.subgroupId+'"]');
+    if(el && el.parentNode) el.parentNode.insertBefore(editor, el); else homeEditor();
+  }
+  function openEditor(){ placeEditor(); editor.classList.add("open"); editor.scrollIntoView({behavior:"smooth",block:"center"}); (state.editor.mode==="search"?elLoc:elName).focus(); }
+  function closeEditor(){ editor.classList.remove("open"); homeEditor(); state.editor={mode:null,groupId:null,subgroupId:null,linkId:null}; elName.value=""; elLoc.value=""; elUrl.value=""; elNote.value=""; ctxEl.style.display="none"; configFields(null); showDelete(false); }
+
+  function openGroupEditor(){ state.editor={mode:"group"}; titleEl.textContent="Add group"; lblName.textContent="Display name"; ctxEl.style.display="none"; configFields("group"); showDelete(false); elType.value="linkedin"; elName.value="LinkedIn"; openEditor(); }
+  function openGroupSettings(gid){ var g=findGroup(gid); state.editor={mode:"rename-group",groupId:gid}; titleEl.textContent="Edit group"; lblName.textContent="Display name"; ctxEl.style.display="none"; configFields("rename-group"); showDelete(true); elType.value=g?g.type:"custom"; elName.value=g?g.name:""; openEditor(); }
+  function openSubgroupEditor(gid){ var g=findGroup(gid); state.editor={mode:"subgroup",groupId:gid}; titleEl.textContent="Add search term"; lblName.textContent="Search term (role or keyword)"; ctxEl.textContent="in "+(g?g.name:""); ctxEl.style.display="block"; configFields("subgroup"); showDelete(false); elName.value=""; openEditor(); }
+  function openSubSettings(gid,sid){ var g=findGroup(gid), sg=findSub(gid,sid); state.editor={mode:"rename-subgroup",groupId:gid,subgroupId:sid}; titleEl.textContent="Edit search term"; lblName.textContent="Search term"; ctxEl.textContent="in "+(g?g.name:""); ctxEl.style.display="block"; configFields("rename-subgroup"); showDelete(true); elName.value=sg?sg.name:""; openEditor(); }
+  function openSearchEditor(gid,sid,link){
+    var g=findGroup(gid), sg=findSub(gid,sid);
+    state.editor={mode:"search",groupId:gid,subgroupId:sid,linkId:link?link.id:null};
+    titleEl.textContent=link?"Edit search":"Add search"; lblName.textContent="Title (optional, defaults to the link)";
+    ctxEl.textContent=(g?g.name:"")+" \u203a "+(sg?sg.name:""); ctxEl.style.display="block";
+    configFields("search"); showDelete(false);
+    elName.value=link?link.label:""; elLoc.value=link?(link.location||""):""; elUrl.value=link?link.url:""; elNote.value=link?(link.note||""):"";
+    openEditor();
+  }
+
+  elType.addEventListener("change",function(){
+    if(state.editor.mode!=="group") return;
+    if(elType.value==="linkedin") elName.value="LinkedIn";
+    else if(elType.value==="google") elName.value="Google";
+    else { elName.value=""; elName.focus(); }
+  });
+
+  document.getElementById("addGroupBtn").addEventListener("click",function(){ if(editor.classList.contains("open") && state.editor.mode==="group") closeEditor(); else { closeEditor(); openGroupEditor(); } });
+  document.getElementById("edCancel").addEventListener("click",closeEditor);
+  delBtn.addEventListener("click",function(){
+    var m=state.editor.mode;
+    if(m==="rename-group"){ var g=findGroup(state.editor.groupId); if(g) confirmBox('Delete the "'+g.name+'" group and everything in it?', "Delete", function(){ state.groups=state.groups.filter(function(x){return x.id!==g.id;}); save(); closeEditor(); render(); }); }
+    else if(m==="rename-subgroup"){ var g2=findGroup(state.editor.groupId), sg=findSub(state.editor.groupId,state.editor.subgroupId); if(g2&&sg) confirmBox('Delete the "'+sg.name+'" term and its searches?', "Delete", function(){ g2.subgroups=g2.subgroups.filter(function(x){return x.id!==sg.id;}); save(); closeEditor(); render(); }); }
+  });
+  document.getElementById("edSave").addEventListener("click",function(){
+    var m=state.editor.mode, name=elName.value.trim();
+    if(m==="group"){ var t=elType.value; var nm=name||TYPE_LABEL[t]||""; if(!nm){ elName.focus(); return; } state.groups.push({id:uid(),type:t,name:nm,subgroups:[]}); }
+    else if(m==="rename-group"){ var g=findGroup(state.editor.groupId); if(g){ g.type=elType.value; if(name) g.name=name; } }
+    else if(m==="subgroup"){ if(!name){ elName.focus(); return; } var g2=findGroup(state.editor.groupId); if(g2) g2.subgroups.push({id:uid(),name:name,links:[]}); }
+    else if(m==="rename-subgroup"){ var sg=findSub(state.editor.groupId,state.editor.subgroupId); if(sg&&name) sg.name=name; }
+    else if(m==="search"){
+      var url=elUrl.value.trim(); if(!url){ elUrl.focus(); return; }
+      if(!/^https?:\/\//i.test(url)) url="https://"+url;
+      var loc=elLoc.value.trim(), note=elNote.value.trim();
+      if(state.editor.linkId){ var l=findLinkById(state.editor.linkId); if(l){ l.label=name; l.location=loc; l.url=url; l.note=note; } }
+      else { var sg2=findSub(state.editor.groupId,state.editor.subgroupId); if(sg2) sg2.links.push(lk(name,url,note,loc)); }
+    } else { return; }
+    save(); closeEditor(); render();
+  });
+  elName.addEventListener("keydown",function(e){ if(e.key==="Enter" && state.editor.mode!=="search"){ document.getElementById("edSave").click(); } });
+
+  document.getElementById("filter").addEventListener("input",function(e){ state.filter=e.target.value; render(); });
+
+  function pad2(n){ return (n<10?"0":"")+n; }
+  function backupName(){ var d=new Date(); return "backup_"+d.getFullYear()+"_"+pad2(d.getMonth()+1)+"_"+pad2(d.getDate())+".json"; }
+  function doExport(){
+    var blob=new Blob([JSON.stringify(state.groups,null,2)],{type:"application/json"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=backupName(); a.click(); URL.revokeObjectURL(a.href);
+  }
+  var backupSel=document.getElementById("backupSel");
+  backupSel.addEventListener("change",function(){
+    var v=backupSel.value;
+    if(v==="export") doExport();
+    else if(v==="import") document.getElementById("importFile").click();
+    backupSel.value="";
+  });
+  document.getElementById("bmBtn").addEventListener("click",openImport);
+  document.getElementById("importFile").addEventListener("change",function(e){
+    var file=e.target.files[0]; if(!file) return; var reader=new FileReader();
+    reader.onload=function(){ try{ var d=JSON.parse(reader.result); if(Array.isArray(d)){ state.groups=normalize(d); state.selected={}; save(); render(); } }catch(err){ alert("Couldn't read that file. Expected the JSON exported from here."); } };
+    reader.readAsText(file); e.target.value="";
+  });
+
+
+  // ===== bookmark import wizard =====
+  var importModal=document.getElementById("importModal");
+  var importBody=document.getElementById("importBody");
+  var bmFile=document.getElementById("bmFile");
+  var imp={tree:null,path:[],selected:{},byId:{}};
+  var _bid=0;
+
+  function openImport(){ imp={tree:null,path:[],selected:{},byId:{}}; _bid=0; importModal.classList.add("on"); renderImpFile(); }
+  function closeImport(){ importModal.classList.remove("on"); }
+  document.getElementById("importClose").addEventListener("click",closeImport);
+  importModal.addEventListener("click",function(e){ if(e.target===importModal) closeImport(); });
+
+  function parseBookmarks(html){
+    var doc=new DOMParser().parseFromString(html,"text/html");
+    var root=doc.querySelector("dl");
+    function folderDL(dt){
+      var c=dt.querySelector(":scope > dl"); if(c) return c;
+      var n=dt.nextElementSibling; while(n){ if(n.tagName==="DL") return n; if(n.tagName==="DT") break; n=n.nextElementSibling; } return null;
+    }
+    function walk(dl){
+      var out={name:"",folders:[],links:[]}, kids=dl.children;
+      for(var i=0;i<kids.length;i++){
+        var dt=kids[i]; if(dt.tagName!=="DT") continue;
+        var h3=dt.querySelector(":scope > h3"), a=dt.querySelector(":scope > a");
+        if(h3){ var sub=folderDL(dt); var c=sub?walk(sub):{folders:[],links:[]}; c.name=(h3.textContent||"Folder").trim(); out.folders.push(c); }
+        else if(a){ var href=a.getAttribute("href")||""; if(href.indexOf("http")===0) out.links.push({title:(a.textContent||href).trim(),url:href}); }
+      }
+      return out;
+    }
+    function tot(node){ var n=node.links.length; node.folders.forEach(function(x){ n+=tot(x); }); return n; }
+    var tree=root?walk(root):{folders:[],links:[]};
+    if(tot(tree)===0){
+      var flat={name:"",folders:[],links:[]};
+      Array.prototype.forEach.call(doc.querySelectorAll("a[href]"),function(a){ var href=a.getAttribute("href")||""; if(href.indexOf("http")===0) flat.links.push({title:(a.textContent||href).trim(),url:href}); });
+      return flat;
+    }
+    return tree;
+  }
+  function indexLinks(node){ node.links.forEach(function(l){ l.id="b"+(_bid++); imp.byId[l.id]=l; }); node.folders.forEach(indexLinks); }
+  function totalLinks(node){ var n=node.links.length; node.folders.forEach(function(fl){ n+=totalLinks(fl); }); return n; }
+  function curNode(){ var n=imp.tree; imp.path.forEach(function(fi){ n=n.folders[fi]; }); return n; }
+  function selCount(){ return Object.keys(imp.selected).length; }
+
+  function renderImpFile(){
+    importBody.innerHTML='<p class="imp-note">A web page can\u2019t read your browser bookmarks directly, so export them first: open your browser\u2019s bookmark manager and choose <b>Export bookmarks</b> to an HTML file. Then pick that file here.</p><button id="impPick">Choose bookmarks file</button>';
+    document.getElementById("impPick").addEventListener("click",function(){ bmFile.click(); });
+  }
+  bmFile.addEventListener("change",function(e){
+    var file=e.target.files[0]; e.target.value=""; if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      imp.byId={}; _bid=0; imp.tree=parseBookmarks(reader.result); indexLinks(imp.tree); imp.path=[]; imp.selected={};
+      if(totalLinks(imp.tree)===0){ importBody.innerHTML='<p class="imp-note">No bookmarks found in that file. Make sure it is an HTML bookmarks export.</p><button id="impB">Back</button>'; document.getElementById("impB").addEventListener("click",renderImpFile); return; }
+      renderImpSelect();
+    };
+    reader.readAsText(file);
+  });
+
+  function renderImpSelect(){
+    var node=curNode(), h="";
+    h+='<div class="imp-crumb"><a data-cb="-1">All bookmarks</a>';
+    var acc=imp.tree; imp.path.forEach(function(fi,idx){ acc=acc.folders[fi]; h+=' \u203a <a data-cb="'+idx+'">'+esc(acc.name)+'</a>'; });
+    h+='</div>';
+    if(node.folders.length){ h+='<div class="imp-folders">'; node.folders.forEach(function(fl,i){ h+='<button class="imp-folder" data-folder="'+i+'">'+esc(fl.name)+' ('+totalLinks(fl)+')</button>'; }); h+='</div>'; }
+    if(node.links.length){
+      h+='<label class="imp-all"><input type="checkbox" id="impAll"> select all in this folder</label><div class="imp-links">';
+      node.links.forEach(function(l){ h+='<label class="imp-link"><input type="checkbox" class="imp-cb" data-id="'+l.id+'"'+(imp.selected[l.id]?" checked":"")+'><span class="meta"><span class="t">'+esc(l.title)+'</span><span class="u">'+esc(l.url)+'</span></span></label>'; });
+      h+='</div>';
+    } else if(!node.folders.length){ h+='<p class="imp-note">This folder is empty.</p>'; }
+    h+='<div class="imp-foot"><span class="imp-cnt" id="impCnt"></span><span class="sp"></span><button class="ghost" id="impStart">Start over</button><button id="impNext">Next</button></div>';
+    importBody.innerHTML=h; updImpCnt();
+    var allcb=document.getElementById("impAll");
+    if(allcb){ allcb.checked=(node.links.length>0 && node.links.every(function(l){return imp.selected[l.id];}));
+      allcb.addEventListener("change",function(){ node.links.forEach(function(l){ if(allcb.checked) imp.selected[l.id]=true; else delete imp.selected[l.id]; }); renderImpSelect(); }); }
+    Array.prototype.forEach.call(importBody.querySelectorAll(".imp-cb"),function(cb){ cb.addEventListener("change",function(){ var id=cb.getAttribute("data-id"); if(cb.checked) imp.selected[id]=true; else delete imp.selected[id]; updImpCnt(); }); });
+    Array.prototype.forEach.call(importBody.querySelectorAll(".imp-folder"),function(b){ b.addEventListener("click",function(){ imp.path.push(parseInt(b.getAttribute("data-folder"),10)); renderImpSelect(); }); });
+    Array.prototype.forEach.call(importBody.querySelectorAll(".imp-crumb a"),function(a){ a.addEventListener("click",function(){ var cb=parseInt(a.getAttribute("data-cb"),10); imp.path=cb<0?[]:imp.path.slice(0,cb+1); renderImpSelect(); }); });
+    document.getElementById("impStart").addEventListener("click",renderImpFile);
+    document.getElementById("impNext").addEventListener("click",function(){ if(selCount()>0) renderImpDest(); });
+  }
+  function updImpCnt(){ var el=document.getElementById("impCnt"); if(el) el.textContent=selCount()+" selected"; var nx=document.getElementById("impNext"); if(nx) nx.disabled=(selCount()===0); }
+
+  function renderImpDest(){
+    var n=selCount(), h='<p class="imp-note">Importing '+n+' bookmark'+(n===1?"":"s")+'. Where should they go?</p>';
+    h+='<div class="imp-field"><label>Group</label><select id="impGroup">';
+    state.groups.forEach(function(g){ h+='<option value="'+g.id+'">'+esc(g.name)+'</option>'; });
+    h+='<option value="__new">+ New group\u2026</option></select></div>';
+    h+='<div class="imp-field" id="impNewGroupWrap" style="display:none"><label>New group name</label><input id="impNewGroup" placeholder="e.g. LinkedIn"><div style="height:8px"></div><label>Type</label><select id="impNewType"><option value="linkedin">LinkedIn</option><option value="google">Google</option><option value="custom" selected>Custom / Other</option></select></div>';
+    h+='<div class="imp-field" id="impSubWrap"><label>Search term (subgroup)</label><select id="impSub"></select></div>';
+    h+='<div class="imp-field" id="impNewSubWrap" style="display:none"><label>New search term name</label><input id="impNewSub" placeholder="e.g. Accountant"></div>';
+    h+='<div class="imp-foot"><span class="sp"></span><button class="ghost" id="impBack">Back</button><button id="impDo">Import '+n+'</button></div>';
+    importBody.innerHTML=h;
+    var gsel=document.getElementById("impGroup"), sub=document.getElementById("impSub");
+    function refresh(){
+      var gv=gsel.value;
+      document.getElementById("impNewGroupWrap").style.display = gv==="__new"?"block":"none";
+      if(gv==="__new"){ document.getElementById("impSubWrap").style.display="none"; document.getElementById("impNewSubWrap").style.display="block"; }
+      else {
+        document.getElementById("impSubWrap").style.display="block";
+        var g=findGroup(gv); sub.innerHTML="";
+        g.subgroups.forEach(function(sgi){ var o=document.createElement("option"); o.value=sgi.id; o.textContent=sgi.name; sub.appendChild(o); });
+        var on=document.createElement("option"); on.value="__new"; on.textContent="+ New search term\u2026"; sub.appendChild(on);
+        document.getElementById("impNewSubWrap").style.display = sub.value==="__new"?"block":"none";
+      }
+    }
+    gsel.addEventListener("change",refresh);
+    sub.addEventListener("change",function(){ document.getElementById("impNewSubWrap").style.display = sub.value==="__new"?"block":"none"; });
+    refresh();
+    document.getElementById("impBack").addEventListener("click",renderImpSelect);
+    document.getElementById("impDo").addEventListener("click",doImport);
+  }
+
+  function doImport(){
+    var ids=Object.keys(imp.selected); if(!ids.length) return;
+    var gsel=document.getElementById("impGroup"), g;
+    if(gsel.value==="__new"){
+      var gn=document.getElementById("impNewGroup").value.trim(); if(!gn){ document.getElementById("impNewGroup").focus(); return; }
+      g={id:uid(),type:document.getElementById("impNewType").value,name:gn,subgroups:[]}; state.groups.push(g);
+    } else { g=findGroup(gsel.value); }
+    var sg, subSel=document.getElementById("impSub"), subVal=(gsel.value==="__new")?"__new":subSel.value;
+    if(subVal==="__new"){
+      var sn=document.getElementById("impNewSub").value.trim(); if(!sn){ document.getElementById("impNewSub").focus(); return; }
+      sg={id:uid(),name:sn,links:[]}; g.subgroups.push(sg);
+    } else { sg=findSub(g.id,subVal); }
+    ids.forEach(function(id){ var b=imp.byId[id]; if(b) sg.links.push(lk(b.title||"",b.url,"","")); });
+    save(); closeImport(); render();
+  }
+
+
+  var THEMES={
+    "default":{paper:"#f4f1ea",panel:"#fbfaf6",ink:"#1a1a17",muted:"#6b6760",faint:"#9c9789",accent:"#8a3324",rule:"#d8d2c4",ruleSoft:"#e7e2d6"},
+    "midnight":{paper:"#0e1530",panel:"#172040",ink:"#dfe4f2",muted:"#97a0c4",faint:"#5e6a99",accent:"#f0a830",rule:"#283357",ruleSoft:"#1c264a"},
+    "sea":{paper:"#d7e7e6",panel:"#e9f3f2",ink:"#11302e",muted:"#4f6f6c",faint:"#86a6a2",accent:"#0d7d72",rule:"#b6d2cf",ruleSoft:"#cadedb"},
+    "terminal":{paper:"#0d1117",panel:"#141b22",ink:"#cdd9d2",muted:"#7d9488",faint:"#586b60",accent:"#3fb950",rule:"#20302a",ruleSoft:"#18221d"},
+    "sunset":{paper:"#f6dfc9",panel:"#fdeede",ink:"#3a2114",muted:"#8a6249",faint:"#c0a081",accent:"#c4461f",rule:"#ecceb1",ruleSoft:"#f3dcc4"},
+    "berry":{paper:"#1c1024",panel:"#271534",ink:"#efe2f2",muted:"#a98cb4",faint:"#6f5479",accent:"#d264a4",rule:"#3a2148",ruleSoft:"#2a1838"}
+  };
+  function applyTheme(key){
+    var t=THEMES[key]||THEMES["default"], r=document.documentElement.style;
+    r.setProperty("--paper",t.paper); r.setProperty("--panel",t.panel); r.setProperty("--ink",t.ink);
+    r.setProperty("--muted",t.muted); r.setProperty("--faint",t.faint); r.setProperty("--accent",t.accent);
+    r.setProperty("--rule",t.rule); r.setProperty("--rule-soft",t.ruleSoft);
+    try{ localStorage.setItem("jobdesk.theme",key); }catch(e){}
+  }
+  (function initTheme(){
+    var saved="default"; try{ saved=localStorage.getItem("jobdesk.theme")||"default"; }catch(e){}
+    if(!THEMES[saved]) saved="default";
+    var ts=document.getElementById("themeSel"); ts.value=saved; applyTheme(saved);
+    ts.addEventListener("change",function(){ applyTheme(ts.value); });
+  })();
+
+  markStore(!!load());
+  render();
+})();
+</script>
+</body>
+</html>
