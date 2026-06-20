@@ -10,7 +10,7 @@
 <title>Launchpad</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --paper:#f4f1ea; --panel:#fbfaf6; --ink:#1a1a17; --muted:#6b6760;
@@ -77,6 +77,11 @@
   .subgroup-head{display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--rule);padding:9px 0 5px;flex-wrap:wrap}
   .subgroup-head h3{font-family:var(--serif);font-weight:600;font-size:16px;margin:0;line-height:1.1}
   .subgroup-head .count{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.06em}
+  html[data-theme="terminal"] .brand h1,
+  html[data-theme="terminal"] .group-head h2,
+  html[data-theme="terminal"] .subgroup-head h3{font-weight:700}
+  html[data-theme="terminal"] .group-head .count,
+  html[data-theme="terminal"] .subgroup-head .count{font-weight:600;color:var(--muted)}
   .subgroup-head .spacer{flex:1}
   .hint-empty{color:var(--faint);font-size:13px;padding:9px 2px}
 
@@ -811,12 +816,14 @@
     "default":{paper:"#f4f1ea",panel:"#fbfaf6",ink:"#1a1a17",muted:"#6b6760",faint:"#9c9789",accent:"#8a3324",rule:"#d8d2c4",ruleSoft:"#e7e2d6"},
     "midnight":{paper:"#0e1530",panel:"#172040",ink:"#dfe4f2",muted:"#97a0c4",faint:"#5e6a99",accent:"#f0a830",rule:"#283357",ruleSoft:"#1c264a"},
     "sea":{paper:"#d7e7e6",panel:"#e9f3f2",ink:"#11302e",muted:"#4f6f6c",faint:"#86a6a2",accent:"#0d7d72",rule:"#b6d2cf",ruleSoft:"#cadedb"},
-    "terminal":{paper:"#0d1117",panel:"#141b22",ink:"#cdd9d2",muted:"#7d9488",faint:"#586b60",accent:"#3fb950",rule:"#20302a",ruleSoft:"#18221d"},
+    "terminal":{paper:"#0d1117",panel:"#141b22",ink:"#33ff66",muted:"#5ccf7e",faint:"#34864f",accent:"#9dffbe",rule:"#22402e",ruleSoft:"#17251c"},
     "sunset":{paper:"#f6dfc9",panel:"#fdeede",ink:"#3a2114",muted:"#8a6249",faint:"#c0a081",accent:"#c4461f",rule:"#ecceb1",ruleSoft:"#f3dcc4"},
     "berry":{paper:"#1c1024",panel:"#271534",ink:"#efe2f2",muted:"#a98cb4",faint:"#6f5479",accent:"#d264a4",rule:"#3a2148",ruleSoft:"#2a1838"}
   };
   function applyTheme(key){
-    var t=THEMES[key]||THEMES["default"], r=document.documentElement.style;
+    if(!THEMES[key]) key="default";
+    var t=THEMES[key], r=document.documentElement.style;
+    document.documentElement.setAttribute("data-theme",key);
     r.setProperty("--paper",t.paper); r.setProperty("--panel",t.panel); r.setProperty("--ink",t.ink);
     r.setProperty("--muted",t.muted); r.setProperty("--faint",t.faint); r.setProperty("--accent",t.accent);
     r.setProperty("--rule",t.rule); r.setProperty("--rule-soft",t.ruleSoft);
